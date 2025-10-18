@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concurrency Simulation Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .table thead {
+            background: #667eea;
+            color: white;
+        }
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        .badge-read {
+            background: #28a745;
+            padding: 5px 10px;
+            border-radius: 15px;
+            color: white;
+        }
+        .badge-write {
+            background: #dc3545;
+            padding: 5px 10px;
+            border-radius: 15px;
+            color: white;
+        }
+        .status-success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-blocked {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .status-failed {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .nav-links {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .nav-links a {
+            margin: 0 10px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <div class="page-header">
+                <h1>⚙️ Concurrency Simulation Results</h1>
+                <p class="mb-0">Real-time Concurrent Database Operations</p>
+            </div>
+
+            <div class="alert alert-info">
+                <h5>📋 Simulation Summary</h5>
+                <ul class="mb-0">
+                    <li><strong>Total Operations:</strong> {{ total_operations }}</li>
+                    <li><strong>Read Operations:</strong> 5 parallel threads (no blocking)</li>
+                    <li><strong>Write Operations:</strong> 5 concurrent updates to Employee ID {{ test_emp_id }} (with locking)</li>
+                    <li><strong>Mechanism:</strong> SQLite WAL mode with BEGIN IMMEDIATE for writes</li>
+                </ul>
+            </div>
+
+            <h4 class="mb-3" style="color: #667eea;">Operation Log (Chronological)</h4>
+            {% if results %}
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Thread ID</th>
+                        <th>Operation Type</th>
+                        <th>Table</th>
+                        <th>Duration (s)</th>
+                        <th>Status</th>
+                        <th>Result/Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in results %}
+                    <tr>
+                        <td><strong>{{ log.thread_id }}</strong></td>
+                        <td>
+                            {% if 'READ' in log.operation %}
+                            <span class="badge-read">{{ log.operation }}</span>
+                            {% else %}
+                            <span class="badge-write">{{ log.operation }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ log.get('table', 'N/A') }}</td>
+                        <td>{{ "%.3f"|format(log.get('duration', 0)) }}</td>
+                        <td>
+                            {% if 'Success' in log.status %}
+                            <span class="status-success">✓ {{ log.status }}</span>
+                            {% elif 'Blocked' in log.status or 'Retried' in log.status %}
+                            <span class="status-blocked">⚠ {{ log.status }}</span>
+                            {% else %}
+                            <span class="status-failed">✗ {{ log.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ log.get('result', '') }}
+                            {% if log.get('note') %}
+                            <br><small class="text-muted">{{ log.note }}</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="alert alert-warning">
+                No operations were executed. Please add at least one employee record first.
+            </div>
+            {% endif %}
+
+            <div class="alert alert-success mt-4">
+                <h5>🎓 Key Takeaways</h5>
+                <ul class="mb-0">
+                    <li><strong>Concurrent Reads:</strong> Multiple READ operations execute simultaneously without blocking each other (SQLite WAL mode allows this)</li>
+                    <li><strong>Write Conflicts:</strong> When multiple threads try to UPDATE the same record, BEGIN IMMEDIATE causes them to wait in sequence</li>
+                    <li><strong>Transaction Safety:</strong> Each write operation is wrapped in a transaction, ensuring data consistency</li>
+                    <li><strong>Real-world Simulation:</strong> This demonstrates how databases handle multiple users accessing the same data</li>
+                </ul>
+            </div>
+
+            <div class="nav-links">
+                <a href="/">🏠 Home</a> | 
+                <a href="/database-tables">💾 View Database Tables</a> | 
+                <a href="/normalized">📊 Normalization Process</a> |
+                <a href="/report">📋 Payroll Report</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

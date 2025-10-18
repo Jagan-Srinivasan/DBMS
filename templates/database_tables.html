@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Tables View</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .table-section {
+            margin-bottom: 40px;
+        }
+        .table-section h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        .table thead {
+            background: #667eea;
+            color: white;
+        }
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        .nav-links {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .nav-links a {
+            margin: 0 10px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <div class="page-header">
+                <h1>💾 Database Tables View</h1>
+                <p class="mb-0">All Normalized Tables with Current Data</p>
+            </div>
+
+            <div class="table-section">
+                <h4>📂 Department Table (Node 1)</h4>
+                {% if departments %}
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Dept ID</th>
+                            <th>Department Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dept in departments %}
+                        <tr>
+                            <td>{{ dept.dept_id }}</td>
+                            <td>{{ dept.dept_name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">No departments added yet</div>
+                {% endif %}
+            </div>
+
+            <div class="table-section">
+                <h4>👥 Employee Table (Node 2)</h4>
+                {% if employees %}
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Emp ID</th>
+                            <th>Employee Name</th>
+                            <th>Dept ID</th>
+                            <th>Department Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employees %}
+                        <tr>
+                            <td>{{ emp.emp_id }}</td>
+                            <td>{{ emp.emp_name }}</td>
+                            <td>{{ emp.dept_id }}</td>
+                            <td>{{ emp.dept_name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">No employees added yet</div>
+                {% endif %}
+            </div>
+
+            <div class="table-section">
+                <h4>💰 Salary Table (Node 3)</h4>
+                {% if salaries %}
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Salary ID</th>
+                            <th>Employee Name</th>
+                            <th>Basic Pay</th>
+                            <th>Allowance</th>
+                            <th>Deduction</th>
+                            <th>Net Pay</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sal in salaries %}
+                        <tr>
+                            <td>{{ sal.sal_id }}</td>
+                            <td>{{ sal.emp_name }}</td>
+                            <td>₹{{ "%.2f"|format(sal.basic_pay) }}</td>
+                            <td>₹{{ "%.2f"|format(sal.allowance) }}</td>
+                            <td>₹{{ "%.2f"|format(sal.deduction) }}</td>
+                            <td><strong>₹{{ "%.2f"|format(sal.basic_pay + sal.allowance - sal.deduction) }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">No salary records yet</div>
+                {% endif %}
+            </div>
+
+            <div class="table-section">
+                <h4>⏰ Work Record Table (Node 4)</h4>
+                {% if work_records %}
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Record ID</th>
+                            <th>Employee Name</th>
+                            <th>Work Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for work in work_records %}
+                        <tr>
+                            <td>{{ work.record_id }}</td>
+                            <td>{{ work.emp_name }}</td>
+                            <td>{{ "%.1f"|format(work.work_hours) }} hrs</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">No work records yet</div>
+                {% endif %}
+            </div>
+
+            <div class="alert alert-info">
+                <h5>📊 About These Tables</h5>
+                <p class="mb-0">These tables represent the normalized database structure. Each table is stored in a separate node (database file) to demonstrate distributed data management. The data shown here is the actual data you've entered into the system.</p>
+            </div>
+
+            <div class="nav-links">
+                <a href="/">🏠 Home</a> | 
+                <a href="/normalized">📊 View Normalization Process</a> | 
+                <a href="/report">📋 Payroll Report</a> |
+                <a href="/simulate-concurrency">⚙️ Simulate Concurrency</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

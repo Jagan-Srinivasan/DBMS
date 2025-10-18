@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Report - Distributed Data View</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            margin-top: 30px;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        .table thead {
+            background: #667eea;
+            color: white;
+        }
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        .badge-dept {
+            background: #764ba2;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+        .distributed-info {
+            background: #e7f3ff;
+            border-left: 5px solid #0066cc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .nav-links {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .nav-links a {
+            margin: 0 10px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <div class="page-header">
+                <h1>📊 Payroll Report</h1>
+                <p class="mb-0">Comprehensive Employee Payroll Data</p>
+            </div>
+
+            <div class="distributed-info">
+                <h5>🌐 Distributed Data Demonstration</h5>
+                <p class="mb-0">This report combines data from 4 separate normalized tables (simulating distributed nodes):</p>
+                <ul class="mb-0 mt-2">
+                    <li><strong>Node 1:</strong> Department Table</li>
+                    <li><strong>Node 2:</strong> Employee Table</li>
+                    <li><strong>Node 3:</strong> Salary Table</li>
+                    <li><strong>Node 4:</strong> Work Record Table</li>
+                </ul>
+                <p class="mt-2 small text-muted">Data is joined using SQL INNER JOIN across all tables to create this unified view.</p>
+            </div>
+
+            {% if payroll_data %}
+            <div class="table-container">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Emp ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Basic Pay</th>
+                            <th>Allowance</th>
+                            <th>Deduction</th>
+                            <th>Net Pay</th>
+                            <th>Work Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in payroll_data %}
+                        <tr>
+                            <td><strong>{{ record.emp_id }}</strong></td>
+                            <td>{{ record.emp_name }}</td>
+                            <td><span class="badge badge-dept text-white">{{ record.dept_name }}</span></td>
+                            <td>₹{{ "%.2f"|format(record.basic_pay) }}</td>
+                            <td>₹{{ "%.2f"|format(record.allowance) }}</td>
+                            <td>₹{{ "%.2f"|format(record.deduction) }}</td>
+                            <td><strong class="text-success">₹{{ "%.2f"|format(record.net_pay) }}</strong></td>
+                            <td>{{ "%.1f"|format(record.work_hours) }} hrs</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="alert alert-success mt-3">
+                <strong>Total Records:</strong> {{ payroll_data|length }} employees
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <h3>📭 No Payroll Data Yet</h3>
+                <p>Add employee data using the form to see the report.</p>
+                <a href="/" class="btn btn-primary">Add Employee Data</a>
+            </div>
+            {% endif %}
+
+            <div class="nav-links">
+                <a href="/">🏠 Home</a> | 
+                <a href="/database-tables">💾 Database Tables</a> |
+                <a href="/normalized">📊 Normalization Process</a> | 
+                <a href="/simulate-concurrency">⚙️ Concurrency</a> |
+                <a href="/distributed-demo">🌐 Distributed Data</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

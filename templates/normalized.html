@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Normalization Process</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            margin-top: 30px;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .norm-section {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+        .norm-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .table-preview {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .badge-custom {
+            background: #667eea;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        .nav-links {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .nav-links a {
+            margin: 0 10px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <div class="page-header">
+                <h1>🎓 Database Normalization Journey</h1>
+                <p class="mb-0">From 1NF to 5NF - Complete Demonstration</p>
+            </div>
+
+            <div class="norm-section">
+                <h3><span class="badge badge-custom text-white">1NF</span> First Normal Form</h3>
+                <p><strong>Rule:</strong> Eliminate repeating groups and ensure atomic values.</p>
+                <p><strong>What we did:</strong> Ensured each column contains only atomic (indivisible) values. No arrays or multi-valued attributes.</p>
+                <div class="table-preview">
+                    <strong>❌ Before (Unnormalized):</strong><br>
+                    <code>Employee: John, Dept: HR,Finance, Salary: 50000, Hours: 160</code><br><br>
+                    <strong>✅ After 1NF:</strong><br>
+                    <code>Employee: John, Dept: HR, Salary: 50000, Hours: 160</code><br>
+                    <code>Employee: John, Dept: Finance, Salary: 50000, Hours: 160</code><br>
+                    <small class="text-muted">Each row now contains atomic values only</small>
+                </div>
+            </div>
+
+            <div class="norm-section">
+                <h3><span class="badge badge-custom text-white">2NF</span> Second Normal Form</h3>
+                <p><strong>Rule:</strong> Remove partial dependencies (non-key attributes depending on part of a composite key).</p>
+                <p><strong>What we did:</strong> Separated department information into its own table since department name depends only on dept_id, not on the employee.</p>
+                
+                {% if departments or employees %}
+                <div class="table-preview">
+                    <strong>📊 Your Data (2NF Tables):</strong><br><br>
+                    
+                    <table class="table table-sm table-bordered" style="background: white; margin-bottom: 15px;">
+                        <thead style="background: #667eea; color: white;">
+                            <tr><th colspan="2">Department Table</th></tr>
+                            <tr><th>dept_id</th><th>dept_name</th></tr>
+                        </thead>
+                        <tbody>
+                            {% if departments %}
+                                {% for dept in departments %}
+                                <tr><td>{{ dept.dept_id }}</td><td>{{ dept.dept_name }}</td></tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr><td colspan="2" class="text-center text-muted">No data yet</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                    
+                    <table class="table table-sm table-bordered" style="background: white;">
+                        <thead style="background: #667eea; color: white;">
+                            <tr><th colspan="3">Employee Table</th></tr>
+                            <tr><th>emp_id</th><th>emp_name</th><th>dept_id (FK)</th></tr>
+                        </thead>
+                        <tbody>
+                            {% if employees %}
+                                {% for emp in employees %}
+                                <tr><td>{{ emp.emp_id }}</td><td>{{ emp.emp_name }}</td><td>{{ emp.dept_id }}</td></tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr><td colspan="3" class="text-center text-muted">No data yet</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                    <small class="text-success">✅ Department is separated - no partial dependencies</small>
+                </div>
+                {% else %}
+                <div class="table-preview">
+                    <strong>Tables Created:</strong><br>
+                    <code><strong>department</strong>: dept_id (PK), dept_name</code><br>
+                    <code><strong>employee</strong>: emp_id (PK), emp_name, dept_id (FK)</code><br><br>
+                    <small class="text-success">✅ No partial dependencies - all non-key attributes depend on the full primary key</small>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="norm-section">
+                <h3><span class="badge badge-custom text-white">3NF</span> Third Normal Form</h3>
+                <p><strong>Rule:</strong> Eliminate transitive dependencies (non-key attributes depending on other non-key attributes).</p>
+                <p><strong>What we did:</strong> Separated salary components and work records into independent tables to avoid transitive dependencies.</p>
+                
+                {% if salaries or work_records %}
+                <div class="table-preview">
+                    <strong>📊 Your Data (3NF Tables):</strong><br><br>
+                    
+                    <table class="table table-sm table-bordered" style="background: white; margin-bottom: 15px;">
+                        <thead style="background: #667eea; color: white;">
+                            <tr><th colspan="5">Salary Table</th></tr>
+                            <tr><th>sal_id</th><th>emp_id (FK)</th><th>basic_pay</th><th>allowance</th><th>deduction</th></tr>
+                        </thead>
+                        <tbody>
+                            {% if salaries %}
+                                {% for sal in salaries %}
+                                <tr>
+                                    <td>{{ sal.sal_id }}</td>
+                                    <td>{{ sal.emp_id }}</td>
+                                    <td>₹{{ "%.2f"|format(sal.basic_pay) }}</td>
+                                    <td>₹{{ "%.2f"|format(sal.allowance) }}</td>
+                                    <td>₹{{ "%.2f"|format(sal.deduction) }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr><td colspan="5" class="text-center text-muted">No data yet</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                    
+                    <table class="table table-sm table-bordered" style="background: white;">
+                        <thead style="background: #667eea; color: white;">
+                            <tr><th colspan="3">Work Record Table</th></tr>
+                            <tr><th>record_id</th><th>emp_id (FK)</th><th>work_hours</th></tr>
+                        </thead>
+                        <tbody>
+                            {% if work_records %}
+                                {% for work in work_records %}
+                                <tr>
+                                    <td>{{ work.record_id }}</td>
+                                    <td>{{ work.emp_id }}</td>
+                                    <td>{{ "%.1f"|format(work.work_hours) }} hrs</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr><td colspan="3" class="text-center text-muted">No data yet</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                    <small class="text-success">✅ No transitive dependencies - salary and work hours separated</small>
+                </div>
+                {% else %}
+                <div class="table-preview">
+                    <strong>Additional Tables:</strong><br>
+                    <code><strong>salary</strong>: sal_id (PK), emp_id (FK), basic_pay, allowance, deduction</code><br>
+                    <code><strong>work_record</strong>: record_id (PK), emp_id (FK), work_hours</code><br><br>
+                    <small class="text-success">✅ All attributes depend only on the primary key, no transitive dependencies</small>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="norm-section">
+                <h3><span class="badge badge-custom text-white">4NF</span> Fourth Normal Form</h3>
+                <p><strong>Rule:</strong> Eliminate multi-valued dependencies (independent multi-valued facts about an entity).</p>
+                <p><strong>What we did:</strong> Created separate tables for employee skills and certifications because they are independent multi-valued attributes.</p>
+                <div class="table-preview">
+                    <strong>Problem:</strong><br>
+                    <small>An employee can have multiple skills AND multiple certifications independently.</small><br>
+                    <small>Storing them together creates redundancy: If John has 3 skills and 2 certs, we'd need 6 rows!</small><br><br>
+                    
+                    <strong>Solution (4NF):</strong><br>
+                    <code><strong>skill</strong>: skill_id (PK), skill_name</code><br>
+                    <code><strong>employee_skill</strong>: emp_id (FK), skill_id (FK)</code><br>
+                    <code><strong>certification</strong>: cert_id (PK), cert_name</code><br>
+                    <code><strong>employee_certification</strong>: emp_id (FK), cert_id (FK)</code><br><br>
+                    
+                    <strong>Example:</strong><br>
+                    <div class="code-block">
+<strong>Employee Skills:</strong>
+emp_id=1, skill="Python"
+emp_id=1, skill="JavaScript"
+
+<strong>Employee Certifications:</strong>
+emp_id=1, cert="AWS Certified"
+emp_id=1, cert="PMP"
+                    </div>
+                    <small class="text-success">✅ Skills and certifications are independent - no multi-valued dependencies</small>
+                </div>
+            </div>
+
+            <div class="norm-section">
+                <h3><span class="badge badge-custom text-white">5NF</span> Fifth Normal Form (PJNF - Project-Join Normal Form)</h3>
+                <p><strong>Rule:</strong> Eliminate join dependencies by decomposing into binary projections that can losslessly reconstruct the original data.</p>
+                <p><strong>What we did:</strong> Decomposed the Consultant-Skill-Project triple into three binary relationships.</p>
+                <div class="table-preview">
+                    <strong>Problem (Before 5NF):</strong><br>
+                    <small>Storing (Consultant, Skill, Project) in one table creates a join dependency.</small><br>
+                    <small>Business rule: A consultant can work on a project only if they have a skill required by that project.</small><br><br>
+                    
+                    <strong>Solution (5NF Decomposition):</strong><br>
+                    <code><strong>consultant</strong>: consultant_id (PK), consultant_name</code><br>
+                    <code><strong>consultant_skill</strong>: consultant_id (FK), skill_id (FK)</code><br>
+                    <code><strong>skill_project</strong>: skill_id (FK), project_id (FK)</code><br>
+                    <code><strong>consultant_project</strong>: consultant_id (FK), project_id (FK)</code><br><br>
+                    
+                    <div class="code-block">
+<strong>Binary Projections:</strong>
+1. Consultant ↔ Skill (consultant_skill)
+2. Skill ↔ Project (skill_project)
+3. Consultant ↔ Project (consultant_project)
+
+<strong>Lossless Join Reconstruction:</strong>
+SELECT c.consultant_name, s.skill_name, p.project_name
+FROM consultant c
+JOIN consultant_skill cs ON c.consultant_id = cs.consultant_id
+JOIN skill s ON cs.skill_id = s.skill_id
+JOIN skill_project sp ON s.skill_id = sp.skill_id
+JOIN project p ON sp.project_id = p.project_id
+JOIN consultant_project cp ON 
+    c.consultant_id = cp.consultant_id 
+    AND p.project_id = cp.project_id
+
+<strong>Example Data:</strong>
+• Alice has Python skill
+• Python is needed for Website Redesign project
+• Alice works on Website Redesign
+→ Reconstructed: (Alice, Python, Website Redesign)
+                    </div>
+                    <small class="text-success">✅ The original triple is perfectly reconstructed from three binary tables - true 5NF!</small>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <h5>🎯 Benefits of Full Normalization (1NF → 5NF)</h5>
+                <ul class="mb-0">
+                    <li><strong>Zero redundancy</strong> - Each fact stored exactly once</li>
+                    <li><strong>Data integrity</strong> - Foreign keys enforce referential integrity</li>
+                    <li><strong>Update anomaly prevention</strong> - No inconsistencies during updates</li>
+                    <li><strong>Scalability</strong> - Easy to add new attributes without restructuring</li>
+                    <li><strong>Flexibility</strong> - Independent facts can evolve separately</li>
+                </ul>
+            </div>
+
+            <div class="alert alert-warning">
+                <h5>📊 Live Demo</h5>
+                <p class="mb-2">Want to see the 4NF and 5NF tables in action with real data?</p>
+                <a href="/4nf-5nf-demo" class="btn btn-sm btn-warning" target="_blank">View 4NF/5NF JSON Demo</a>
+            </div>
+
+            <div class="nav-links">
+                <a href="/">🏠 Home</a> | 
+                <a href="/database-tables">💾 Database Tables</a> |
+                <a href="/report">📋 Payroll Report</a> | 
+                <a href="/simulate-concurrency">⚙️ Concurrency</a> |
+                <a href="/distributed-demo">🌐 Distributed Data</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
